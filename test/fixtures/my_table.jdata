@@ -1,0 +1,5 @@
+19 {"name":"my_table"}
+148 [{"name":"id","type":"unsigned"},{"name":"number","type":"number"},{"name":"string","type":"string"},{"type":"any","name":"any","is_nullable":true}]
+77 {"number":3.14,"any":{"a":5,"b":6},"string":",,',,,,\n,,,\",,,\"\",,","id":1}
+145 {"number":5e+20,"any":[1,2,3,4,5],"string":"Съешь эти мягкие французские булочки, да выпей чаю","id":2}
+33 {"number":0,"string":"{}","id":3}
