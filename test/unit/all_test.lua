@@ -3,7 +3,7 @@ local t = require("luatest")
 local g = t.group()
 
 local tnt_vanilla_migrator = require('tnt-vanilla-migrator')
-require('lua-debug-helper').run()
+--require('lua-debug-helper').run()
 
 local TEST_DATA = {
     {
