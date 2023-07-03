@@ -83,7 +83,19 @@ g.test_export = function()
     t.assert_equals(need_data, actual_data)
 end
 
-g.test_import = function()
+g.test_import_from_file = function()
+    tnt_vanilla_migrator.import('test/fixtures/my_table.jdata')
+    local cnt = box.space.my_table:count()
+    t.assert_equals(cnt, 3, 'Число записей')
+end
+
+g.test_import_from_directory = function()
+    tnt_vanilla_migrator.import('test/fixtures/')
+    local cnt = box.space.my_table:count()
+    t.assert_equals(cnt, 3, 'Число записей')
+end
+
+g.test_simple_import = function()
     tnt_vanilla_migrator.import('test/fixtures/my_table.jdata')
 
     local space = box.space.my_table
@@ -95,6 +107,22 @@ g.test_import = function()
     end
 
     t.assert_equals(ctr, 3, 'Число записей')
+end
+
+g.test_failure_import__need_default = function()
+    local opt = {
+        my_table = {
+            new_space_name = 'altered_table',
+            default_values = {
+                too = 0,
+            }
+        }
+    }
+
+    local ok, err = pcall(tnt_vanilla_migrator.import, 'test/fixtures/my_table.jdata', opt)
+    t.assert_equals(ok, false)
+    t.assert_equals(type(err), 'string')
+    t.assert(err:find('Need set default values for field dest space: foo'))
 end
 
 g.test_import_to_altered_table = function()

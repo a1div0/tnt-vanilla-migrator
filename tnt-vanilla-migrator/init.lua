@@ -67,6 +67,31 @@ local function export(dirname)
     end
 end
 
+local function check_format(dst_format, src_format, defaults)
+    local unset = {}
+
+    for _, item in pairs(dst_format) do
+        unset[item.name] = item.type
+    end
+
+    for _, item in pairs(src_format) do
+        unset[item.name] = nil
+    end
+
+    for key, _ in pairs(defaults or {}) do
+        unset[key] = nil
+    end
+
+    local res = {}
+    for key, _ in pairs(unset) do
+        table.insert(res, key)
+    end
+
+    if #res > 0 then
+        error('Need set default values for field dest space: ' .. table.concat(res, ', '))
+    end
+end
+
 local function import_file(filename, options)
     local f, err = fio.open(filename, {'O_RDONLY'})
     if not f then
@@ -74,23 +99,25 @@ local function import_file(filename, options)
     end
 
     local space_info = read_block(f)
-    local space_import_options = options[space_info.name]
+    local space_import_options = options[space_info.name] or {}
 
-    if space_import_options and space_import_options.new_space_name then
+    if space_import_options.new_space_name then
         space_info.old_name = space_info.name
         space_info.name = space_import_options.new_space_name
     end
 
     local space = box.space[space_info.name]
 
-    local _ = read_block(f) -- format
+    local src_format = read_block(f) -- format
+    check_format(space:format(), src_format, space_import_options.default_values)
+
     while true do
         local record = read_block(f)
         if not record then
             break
         end
 
-        if space_import_options and space_import_options.default_values then
+        if space_import_options.default_values then
             for key, value in pairs(space_import_options.default_values) do
                 if not record[key] then
                     record[key] = value

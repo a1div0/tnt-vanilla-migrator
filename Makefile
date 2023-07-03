@@ -13,6 +13,7 @@ clean:
 	rm -rf ./.rocks ./test/data luacov.*.out
 
 test: .rocks
+	tarantoolctl rocks make && \
 	./.rocks/bin/luacheck tnt-vanilla-migrator/ test/ && \
 	./.rocks/bin/luatest -v --coverage --shuffle all && \
     ./.rocks/bin/luacov -r summary && cat luacov.report.out
