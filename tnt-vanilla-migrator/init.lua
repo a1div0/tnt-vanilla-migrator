@@ -71,9 +71,11 @@ local function export_sequences(dirname)
     for _, tuple in box.space._sequence:pairs() do
         local record = tuple:tomap({names_only = true})
         local value_tuple = box.space._sequence_data:get(record.id)
-        local value_record = value_tuple:tomap({names_only = true})
-        record.value = value_record.value
-        write_block(f, record)
+        if value_tuple then
+            local value_record = value_tuple:tomap({names_only = true})
+            record.value = value_record.value
+            write_block(f, record)
+        end
     end
 
     f:close()
