@@ -1,7 +1,7 @@
 package = 'tnt-vanilla-migrator'
 version = '1.0.0-0'
 source  = {
-    url    = 'git+ssh://git@github.com:a1div0/tnt-vanilla-migrator.git';
+    url    = 'git+https://github.com/a1div0/tnt-vanilla-migrator.git';
     branch = 'main';
     tag = '1.0.0'
 }
