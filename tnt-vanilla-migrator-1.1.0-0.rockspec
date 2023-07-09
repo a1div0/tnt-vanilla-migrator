@@ -1,9 +1,9 @@
 package = 'tnt-vanilla-migrator'
-version = '1.0.0-0'
+version = '1.1.0-0'
 source  = {
     url    = 'git+https://github.com/a1div0/tnt-vanilla-migrator.git';
     branch = 'main';
-    tag = '1.0.0'
+    tag = '1.1.0'
 }
 description = {
     summary  = 'Export to file and import from file';

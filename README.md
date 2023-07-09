@@ -18,5 +18,34 @@ git clone https://github.com/a1div0/tnt-vanilla-migrator.git
 ```
 * установить rock `tnt-vanilla-migrator` модуль используя `tarantoolctl`:
 ```shell
-tarantoolctl rocks install https://raw.githubusercontent.com/a1div0/tnt-vanilla-migrator/main/tnt-vanilla-migrator-1.0.0-0.rockspec
+tarantoolctl rocks install https://raw.githubusercontent.com/a1div0/tnt-vanilla-migrator/main/tnt-vanilla-migrator-1.1.0-0.rockspec
 ```
+
+## Экспорт
+1. Подключаемся к инстансу
+2. Выполняем команду, указав директорию в которую будут записаны данные:
+```lua
+require('tnt-vanilla-migrator').export('<export directory>/')
+```
+
+## Импорт
+Все импортируемые объекты должны быть уже созданы. Если нет, необходимо
+использовать ключ options `create = true`.
+1. Подключаемся к инстансу
+2. Выполняем команду, указав директорию из которой будут прочитаны данные:
+```lua
+require('tnt-vanilla-migrator').import('<directory or file>', options)
+```
+
+### Options
+* `create` - создавать импортируемые объекты перед загрузкой данных
+* `new_space_name` - при загрузке файла (одной таблицы) можно указать новое имя спейса
+* `default_values` - при загрузке файла (одной таблицы) можно указать значения по умолчанию
+  в формате:
+  ```
+  {
+    default_values = {
+        <field_name> = <value>,
+    },
+  }
+  ```

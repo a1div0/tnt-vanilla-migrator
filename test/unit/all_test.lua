@@ -83,6 +83,30 @@ g.test_export = function()
     t.assert_equals(need_data, actual_data)
 end
 
+g.test_export_sequence = function()
+    local rv = box.schema.sequence.create('rv')
+    rv:next()
+    rv:next()
+    rv:next()
+    tnt_vanilla_migrator.export(helper.test_dirname)
+
+    rv:drop()
+
+    local need_data = helper.load_file('test/fixtures/_sequence.jdata')
+    local actual_data = helper.load_file('test/data/migrate/_sequence.jdata')
+
+    t.assert_equals(need_data, actual_data)
+end
+
+g.test_import_sequence = function()
+    tnt_vanilla_migrator.import('test/fixtures/_sequence.jdata', { create = true })
+
+    local rv = box.sequence.rv
+    t.assert(rv, 'Seuence rv exist')
+    t.assert_equals(rv:current(), 3, 'Значение счётчика')
+    rv:drop()
+end
+
 g.test_import_from_file = function()
     tnt_vanilla_migrator.import('test/fixtures/my_table.jdata')
     local cnt = box.space.my_table:count()
@@ -90,9 +114,12 @@ g.test_import_from_file = function()
 end
 
 g.test_import_from_directory = function()
-    tnt_vanilla_migrator.import('test/fixtures/')
+    tnt_vanilla_migrator.import('test/fixtures/', { create = true })
     local cnt = box.space.my_table:count()
     t.assert_equals(cnt, 3, 'Число записей')
+    local rv = box.sequence.rv
+    t.assert(rv, 'Seuence rv exist')
+    rv:drop()
 end
 
 g.test_simple_import = function()
@@ -154,4 +181,3 @@ g.test_import_to_altered_table = function()
 
     t.assert_equals(ctr, 3, 'Число записей')
 end
-
