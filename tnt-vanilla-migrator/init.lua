@@ -1,15 +1,13 @@
 local fio = require('fio')
 local json = require('json')
 
-local LEN_DELIMITER = " "
-local REC_DELIMITER = "\n"
+local JDATA_LEN_DELIMITER = " "
+local JDATA_REC_DELIMITER = "\n"
 
-local function write_block(file_handle, value)
-    local result
+local function write_jdata_block(file_handle, value)
     local string = json.encode(value)
     local n = string:len()
-    result = file_handle:write(n .. LEN_DELIMITER)
-            and file_handle:write(string .. REC_DELIMITER)
+    local result = file_handle:write(n .. JDATA_LEN_DELIMITER .. string .. JDATA_REC_DELIMITER)
     if not result then
         error('IO write error!')
     end
@@ -20,7 +18,7 @@ local function read_block(file_handle)
     local c = ''
     local err
 
-    while c ~= LEN_DELIMITER do
+    while c ~= JDATA_LEN_DELIMITER do
         buf = buf .. c
         c, err = file_handle:read(1)
         if err then
@@ -34,7 +32,7 @@ local function read_block(file_handle)
     local block_length = tonumber64(buf)
     local block = file_handle:read(block_length)
     local delimiter = file_handle:read(1)
-    if delimiter ~= REC_DELIMITER then
+    if delimiter ~= JDATA_REC_DELIMITER then
         error('Block read error: Not finded record delimiter')
     end
 
@@ -48,12 +46,12 @@ local function export_space(dirname, space)
         error('io error: ' .. err)
     end
 
-    write_block(f, { name = space.name })
-    write_block(f, space:format())
+    write_jdata_block(f, { name = space.name })
+    write_jdata_block(f, space:format())
 
     for _, tuple in space:pairs() do
         local record = tuple:tomap({names_only = true})
-        write_block(f, record)
+        write_jdata_block(f, record)
     end
 
     f:close()
@@ -66,7 +64,7 @@ local function export_sequences(dirname)
         error('io error: ' .. err)
     end
 
-    write_block(f, { engine = 'sequence' })
+    write_jdata_block(f, { engine = 'sequence' })
 
     for _, tuple in box.space._sequence:pairs() do
         local record = tuple:tomap({names_only = true})
@@ -74,7 +72,7 @@ local function export_sequences(dirname)
         if value_tuple then
             local value_record = value_tuple:tomap({names_only = true})
             record.value = value_record.value
-            write_block(f, record)
+            write_jdata_block(f, record)
         end
     end
 
