@@ -111,6 +111,17 @@ local function check_format(dst_format, src_format, defaults)
     if #res > 0 then
         error('Need set default values for field dest space: ' .. table.concat(res, ', '))
     end
+
+    local need_delete = {}
+    for _, item in pairs(src_format) do
+        need_delete[item.name] = item.type
+    end
+
+    for _, item in pairs(dst_format) do
+        need_delete[item.name] = nil
+    end
+
+    return need_delete
 end
 
 local function import_engine_space(f, space_info, options)
@@ -121,14 +132,20 @@ local function import_engine_space(f, space_info, options)
         space_info.name = space_import_options.new_space_name
     end
 
+    local format = read_block(f) -- format
+
     local space = box.space[space_info.name]
     if not space then
-        local err_txt = ('Space %s must be created'):format(space_info.name)
-        error(err_txt)
+        if options.create then
+            space = box.schema.space.create(space_info.name)
+            space:format(format)
+        else
+            local err_txt = ('Space %s must be created'):format(space_info.name)
+            error(err_txt)
+        end
     end
 
-    local src_format = read_block(f) -- format
-    check_format(space:format(), src_format, space_import_options.default_values)
+    local need_delete = check_format(space:format(), format, space_import_options.default_values)
 
     while true do
         local record = read_block(f)
@@ -144,7 +161,15 @@ local function import_engine_space(f, space_info, options)
             end
         end
 
+        for key, _ in pairs(need_delete) do
+            record[key] = nil
+        end
+
         local tuple = space:frommap(record)
+        if not tuple then
+            error('Failed to convert record to destination format!')
+        end
+
         space:insert(tuple)
     end
 end

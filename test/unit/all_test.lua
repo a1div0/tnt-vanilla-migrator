@@ -60,6 +60,21 @@ g.before_all(function()
         unique = true,
         if_not_exists = true,
     })
+
+    local space3 = box.schema.space.create('my_table_short', { if_not_exists = true })
+    local fields3 = {
+        {name = 'id', type = 'unsigned'},
+        {name = 'string', type = 'string'},
+        {name = 'any', type = 'any', is_nullable = true},
+    }
+    space3:format(fields3)
+
+    space3:create_index('primary', {
+        parts = {'id'},
+        type = 'tree',
+        unique = true,
+        if_not_exists = true,
+    })
 end)
 
 g.after_each(function()
@@ -176,7 +191,33 @@ g.test_import_to_altered_table = function()
     for _, tuple in space:pairs() do
         ctr = ctr + 1
         local record = tuple:tomap({ names_only = true })
-        t.assert_equals(check_data[record.id or ctr], record)
+        t.assert_equals(record, check_data[record.id or ctr])
+    end
+
+    t.assert_equals(ctr, 3, 'Число записей')
+end
+
+g.test_import_to_other_space_format = function()
+    local opt = {
+        my_table = {
+            new_space_name = 'my_table_short',
+        }
+    }
+
+    local ok, err = pcall(tnt_vanilla_migrator.import, 'test/fixtures/my_table.jdata', opt)
+    t.assert_equals(ok, true, err)
+
+    local check_data = table.deepcopy(TEST_DATA)
+    for _, value in pairs(check_data) do
+        value.number = nil
+    end
+
+    local space = box.space.my_table_short
+    local ctr = 0
+    for _, tuple in space:pairs() do
+        ctr = ctr + 1
+        local record = tuple:tomap({ names_only = true })
+        t.assert_equals(record, check_data[record.id or ctr])
     end
 
     t.assert_equals(ctr, 3, 'Число записей')

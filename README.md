@@ -18,7 +18,7 @@ git clone https://github.com/a1div0/tnt-vanilla-migrator.git
 ```
 * установить rock `tnt-vanilla-migrator` модуль используя `tarantoolctl`:
 ```shell
-tarantoolctl rocks install https://raw.githubusercontent.com/a1div0/tnt-vanilla-migrator/main/tnt-vanilla-migrator-1.1.0-0.rockspec
+tarantoolctl rocks install https://raw.githubusercontent.com/a1div0/tnt-vanilla-migrator/main/tnt-vanilla-migrator-1.2.0-0.rockspec
 ```
 
 ## Экспорт
