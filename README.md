@@ -41,11 +41,17 @@ require('tnt-vanilla-migrator').import('<directory or file>', options)
 * `create` - создавать импортируемые объекты перед загрузкой данных
 * `new_space_name` - при загрузке файла (одной таблицы) можно указать новое имя спейса
 * `default_values` - при загрузке файла (одной таблицы) можно указать значения по умолчанию
-  в формате:
-  ```
-  {
-    default_values = {
-        <field_name> = <value>,
-    },
-  }
-  ```
+    
+Пример:
+``` lua
+local opt = {
+    create = true,
+    my_table = {
+        new_space_name = 'altered_table',
+        default_values = {
+            too = 0,
+            foo = 'default',
+        }
+    }
+}
+```
